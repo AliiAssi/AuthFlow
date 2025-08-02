@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - Sign In</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* Animated background elements */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+            animation: float 15s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            animation: drift 20s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(1deg); }
+            66% { transform: translateY(10px) rotate(-1deg); }
+        }
+
+        @keyframes drift {
+            0% { transform: translateX(-100%) skewX(-5deg); }
+            100% { transform: translateX(100%) skewX(-5deg); }
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            border-radius: 32px;
+            padding: 60px 50px;
+            box-shadow: 
+                0 25px 80px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(255, 255, 255, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(0);
+            will-change: transform;
+        }
+
+        .login-container:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 35px 100px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            border-radius: 24px;
+            margin: 0 auto 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            font-weight: 800;
+            letter-spacing: -1px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .logo:hover {
+            transform: scale(1.05) rotate(-2deg);
+            box-shadow: 0 20px 50px rgba(102, 126, 234, 0.6);
+        }
+
+        .logo::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 4s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .welcome-text {
+            margin-bottom: 12px;
+        }
+
+        .welcome-text h1 {
+            font-size: 36px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+
+        .welcome-text p {
+            font-size: 18px;
+            color: #64748b;
+            margin-bottom: 50px;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .google-button-container {
+            margin: 40px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Hide default Google button and create custom styling */
+        .g_id_signin {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .custom-google-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            padding: 20px 40px;
+            font-size: 17px;
+            font-weight: 600;
+            color: #374151;
+            text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            min-width: 320px;
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.08),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            position: relative;
+            overflow: hidden;
+            will-change: transform;
+        }
+
+        .custom-google-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .custom-google-btn:hover::before {
+            left: 100%;
+        }
+
+        .custom-google-btn:hover {
+            border-color: #4285f4;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 
+                0 15px 40px rgba(66, 133, 244, 0.25),
+                0 0 0 1px rgba(66, 133, 244, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .custom-google-btn:active {
+            transform: translateY(0);
+        }
+
+        .google-icon {
+            width: 24px;
+            height: 24px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath fill='%23FFC107' d='M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z'/%3E%3Cpath fill='%23FF3D00' d='M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z'/%3E%3Cpath fill='%234CAF50' d='M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z'/%3E%3Cpath fill='%231976D2' d='M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 30px 0;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #e5e7eb, transparent);
+        }
+
+        .divider span {
+            padding: 0 20px;
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .feature {
+            text-align: center;
+            padding: 24px 16px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.6) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(240, 147, 251, 0.1));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .feature:hover::before {
+            opacity: 1;
+        }
+
+        .feature:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 100%);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .feature-text {
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .footer-text {
+            margin-top: 40px;
+            font-size: 14px;
+            color: #9ca3af;
+            line-height: 1.4;
+        }
+
+        .footer-text a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer-text a:hover {
+            text-decoration: underline;
+        }
+
+        /* Success message styling */
+        .success-message {
+            background: linear-gradient(135deg, #10b981, #059669, #047857);
+            color: white;
+            padding: 24px;
+            border-radius: 20px;
+            margin: 30px 0;
+            display: none;
+            animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 15px 35px rgba(16, 185, 129, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes slideInUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px) scale(0.9); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        /* Loading state */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .loading .custom-google-btn::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            margin: auto;
+            border: 2px solid transparent;
+            border-top-color: #4285f4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 480px) {
+            body {
+                padding: 20px 15px;
+            }
+
+            .login-container {
+                padding: 50px 35px;
+                margin: 0;
+                border-radius: 28px;
+                max-width: 100%;
+            }
+
+            .logo {
+                width: 80px;
+                height: 80px;
+                font-size: 20px;
+                margin-bottom: 30px;
+            }
+
+            .welcome-text h1 {
+                font-size: 28px;
+            }
+
+            .welcome-text p {
+                font-size: 16px;
+                margin-bottom: 40px;
+            }
+
+            .custom-google-btn {
+                min-width: 100%;
+                padding: 18px 32px;
+                font-size: 16px;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                margin-top: 24px;
+            }
+
+            .feature {
+                padding: 20px 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            A
+        </div>
+        
+        <div class="welcome-text">
+            <h1>Welcome Back</h1>
+            <p>Sign in to your account to continue your journey with us</p>
+        </div>
+
+        <div id="g_id_onload"
+             data-client_id="{{ client_id }}"
+             data-callback="handleCredentialResponse"
+             data-auto_prompt="false">
+        </div>
+
+        <div class="google-button-container">
+            <button class="custom-google-btn">
+                <div class="google-icon"></div>
+                Continue with Google
+            </button>
+            
+            <div class="g_id_signin" 
+                 data-type="standard" 
+                 data-size="large">
+            </div>
+        </div>
+
+        <div class="divider">
+            <span>Secure & Fast</span>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <span class="feature-icon">🔒</span>
+                <div class="feature-text">Secure Login</div>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">⚡</span>
+                <div class="feature-text">Quick Access</div>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🌟</span>
+                <div class="feature-text">Premium Features</div>
+            </div>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            <strong>Success!</strong> Welcome to your dashboard.
+        </div>
+
+        <div class="footer-text">
+            By signing in, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+        </div>
+    </div>
+
+    <script>
+        function handleCredentialResponse(response) {
+            // Add loading state
+            document.body.classList.add('loading');
+            
+            fetch('/google-login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ token: response.credential })
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log("User logged in:", data);
+                document.body.classList.remove('loading');
+                
+                if (data.status === 'success') {
+                    // Show success message with smooth animation
+                    const successMsg = document.getElementById('successMessage');
+                    successMsg.innerHTML = `
+                        <strong>Welcome ${data.name}!</strong><br>
+                        <small>Redirecting you to your dashboard...</small>
+                    `;
+                    successMsg.classList.add('show');
+                    
+                    // Simulate redirect after 2 seconds
+                    setTimeout(() => {
+                        // Replace with your actual redirect logic
+                        window.location.href = '/dashboard'; // or wherever you want to redirect
+                    }, 2000);
+                } else {
+                    // Show error with better UX
+                    showNotification('Login failed: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.body.classList.remove('loading');
+                showNotification('Login error occurred. Please try again.', 'error');
+            });
+        }
+
+        function showNotification(message, type) {
+            // Create a notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'error' ? '#ef4444' : '#10b981'};
+                color: white;
+                padding: 16px 24px;
+                border-radius: 12px;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+                z-index: 1000;
+                animation: slideInRight 0.3s ease;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Add CSS for notification animations with enhanced effects
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { 
+                    transform: translateX(100%) scale(0.9); 
+                    opacity: 0; 
+                }
+                to { 
+                    transform: translateX(0) scale(1); 
+                    opacity: 1; 
+                }
+            }
+
+            .notification {
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                font-weight: 500;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .notification:hover {
+                transform: translateY(-2px) scale(1.02);
+            }
+
+            /* Smooth scrollbar */
+            ::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 4px;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                border-radius: 4px;
+                transition: all 0.3s ease;
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: linear-gradient(135deg, #5a67d8, #6b46c1);
+            }
+
+            /* Selection styling */
+            ::selection {
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+            }
+
+            /* Focus styles for accessibility */
+            .custom-google-btn:focus {
+                outline: none;
+                box-shadow: 
+                    0 15px 40px rgba(66, 133, 244, 0.25),
+                    0 0 0 3px rgba(66, 133, 244, 0.3);
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth scroll behavior
+            document.documentElement.style.scrollBehavior = 'smooth';
+
+            // Enhanced parallax effect with smooth scrolling
+            let ticking = false;
+            
+            function updateTransform(e) {
+                const container = document.querySelector('.login-container');
+                const rect = container.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                const x = (e.clientX - centerX) / rect.width;
+                const y = (e.clientY - centerY) / rect.height;
+                
+                // Smooth transform with perspective
+                container.style.transform = `
+                    perspective(1200px) 
+                    rotateY(${x * 3}deg) 
+                    rotateX(${y * -3}deg)
+                    translateZ(0)
+                `;
+                
+                // Add subtle movement to background elements
+                const bg = document.body;
+                bg.style.backgroundPosition = `${50 + x * 2}% ${50 + y * 2}%`;
+                
+                ticking = false;
+            }
+
+            document.addEventListener('mousemove', function(e) {
+                if (!ticking) {
+                    requestAnimationFrame(() => updateTransform(e));
+                    ticking = true;
+                }
+            });
+
+            // Smooth reset when mouse leaves
+            document.addEventListener('mouseleave', function() {
+                const container = document.querySelector('.login-container');
+                container.style.transition = 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                container.style.transform = 'perspective(1200px) rotateY(0deg) rotateX(0deg) translateZ(0)';
+                
+                // Reset background
+                document.body.style.backgroundPosition = '50% 50%';
+                
+                setTimeout(() => {
+                    container.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+                }, 600);
+            });
+
+            // Add scroll-triggered animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Observe elements for scroll animations
+            document.querySelectorAll('.feature, .footer-text').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                observer.observe(el);
+            });
+
+            // Smooth entrance animation for main container
+            const container = document.querySelector('.login-container');
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(30px) scale(0.95)';
+            
+            setTimeout(() => {
+                container.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0) scale(1)';
+            }, 100);
+        });
+    </script>
+</body>
+</html>
