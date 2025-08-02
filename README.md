@@ -1,4 +1,4 @@
-# FlaskAuth Pro 🚀
+# FlaskAuth Pro 
 
 > Modern Flask authentication with Google OAuth and stunning UI design.
 
@@ -60,8 +60,7 @@ flaskauth-pro/
 
 - `GET /` - Login page
 - `POST /google-login` - OAuth callback
-- `GET /dashboard` - Protected route
-
+  
 ## 🚀 Deploy
 
 Update `.env` for production:
