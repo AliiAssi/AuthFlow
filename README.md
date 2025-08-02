@@ -16,8 +16,8 @@ A production-ready authentication system combining Flask backend with Google OAu
 
 1. **Clone and install**
    ```bash
-   git clone https://github.com/yourusername/flaskauth-pro.git
-   cd flaskauth-pro
+   git clone https://github.com/AliiAssi/AuthFlow.git
+   cd AuthFlow
    pip install -r requirements.txt
    ```
 
